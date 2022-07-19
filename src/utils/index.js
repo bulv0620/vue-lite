@@ -13,3 +13,15 @@ export function isArray(target){
 export function isFunction(target){
     return typeof target === 'function';
 }
+
+export function isString(value) {
+    return typeof value === 'string';
+}
+
+export function isNumber(value) {
+    return typeof value === 'number';
+}
+
+export function isBoolean(value) {
+    return typeof value === 'boolean';
+}

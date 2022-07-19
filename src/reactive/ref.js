@@ -3,7 +3,7 @@ import { track, trigger } from "./effect";
 import { reactive } from "./reactive";
 
 export function ref(value) {
-    if(isRef(value)){
+    if (isRef(value)) {
         return value;
     }
     return new RefImpl(value);
@@ -25,7 +25,7 @@ class RefImpl {
     }
 
     set value(newVal) {
-        if(hasChanged(newVal, this._value)){
+        if (hasChanged(newVal, this._value)) {
             this._value = convert(newVal);
             trigger(this, 'value');
         }
