@@ -7,6 +7,9 @@ export function patchProps(p1, p2) {
     p1 = p1 || {};
     p2 = p2 || {};
     for (const key in p2) {
+        if (key === 'key') {
+            continue;
+        }
         const newVal = p2[key];
         const oldVal = p1[key];
         if (newVal !== oldVal) {
@@ -14,6 +17,9 @@ export function patchProps(p1, p2) {
         }
     }
     for (const key in p1) {
+        if (key === 'key') {
+            continue;
+        }
         if (!p2[key]) {
             p2.el.removeAttribute(key);
         }

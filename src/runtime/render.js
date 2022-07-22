@@ -1,5 +1,6 @@
 import { ShapeFlag } from "./vnode";
 import { patchProps } from "./patchProps";
+import { mountComponent } from "./component";
 
 export function render(vnode, container) {
     const prevVNode = container._vnode;
@@ -31,6 +32,16 @@ function unmount(vnode) {
 
 function unmountComponent() {
     // todo
+}
+
+function processComponent(n1, n2, container, anchor) {
+    if (n1) {
+        // update  被动更新
+    }
+    else {
+        // mountComponent(vnode, container, anchor, patch);
+        // 主动更新
+    }
 }
 
 function unmountFragment(vnode) {
@@ -74,10 +85,6 @@ function patch(n1, n2, container, anchor) {
 
 function isSameVNodeType(n1, n2) {
     return n1.type === n2.type;
-}
-
-function processComponent(n1, n2, container, anchor) {
-    // todo
 }
 
 function processText(n1, n2, container, anchor) {
@@ -151,7 +158,7 @@ function patchChildren(n1, n2, container, anchor) {
 
     if (s2 & ShapeFlag.TEXT_CHILDREN) {
         if (s1 & ShapeFlag.ARRAY_CHILDREN) {
-            unmountChildren(n1);
+            unmountChildren(c1);
         }
         container.textContent = c2;
     }
@@ -161,7 +168,12 @@ function patchChildren(n1, n2, container, anchor) {
             mountArrayChildren(c2, container, anchor);
         }
         else if (s1 & ShapeFlag.ARRAY_CHILDREN) {
-            patchArrayChildren(c1, c2, container, anchor);
+            if (hasKey(c1, c2)) {
+                patchKeyedChildren(c1, c2, container, anchor);
+            }
+            else {
+                patchUnkeyedChildren(c1, c2, container, anchor);
+            }
         }
         else {
             mountArrayChildren(c2, container, anchor)
@@ -172,13 +184,17 @@ function patchChildren(n1, n2, container, anchor) {
             container.textContent = '';
         }
         else if (s1 & ShapeFlag.ARRAY_CHILDREN) {
-            unmountChildren(n1);
+            unmountChildren(c1);
         }
     }
 
 }
 
-function patchArrayChildren(c1, c2, container, anchor) {
+function hasKey(c1, c2) {
+    return c1[0] && c1[0].key && c2[0] && c2[0].key;
+}
+
+function patchUnkeyedChildren(c1, c2, container, anchor) {
     const oldLength = c1.length;
     const newLength = c2.length;
 
@@ -193,4 +209,145 @@ function patchArrayChildren(c1, c2, container, anchor) {
     else if (oldLength < newLength) {
         mountArrayChildren(c2.slice(minLength), container, anchor);
     }
+}
+
+function patchKeyedChildren(c1, c2, container, anchor) {
+    let fp = 0;
+    let rp1 = c1.length - 1;
+    let rp2 = c2.length - 1;
+
+    while (fp < rp1 && fp < rp2 && c1[fp].key === c2[fp].key) {
+        patch(c1[fp], c2[fp], container, anchor);
+        fp++;
+    }
+
+    while (fp < rp1 && fp < rp2 && c1[rp1].key === c2[rp2].key) {
+        patch(c1[rp1], c2[rp2], container, anchor);
+        rp1--;
+        rp2--;
+    }
+
+    if (fp > rp1) {
+        for (let i = fp; i <= rp2; i++) {
+            const curAnchor = c2[rp2 + 1].el;
+            patch(null, c2[i], container, curAnchor);
+        }
+    }
+    else if (fp > rp2) {
+        for (let i = fp; i <= rp1; i++) {
+            unmount(c1[i]);
+        }
+    }
+    else {
+        const nextPos = rp2 + 1;
+        const curAnchor = (c2[nextPos] && c2[nextPos].el) || anchor;
+        coreDiff(c1.slice(fp, rp1 + 1), c2.slice(fp, rp2 + 1), container, curAnchor);
+    }
+}
+
+function coreDiff(c1, c2, container, anchor) {
+    const oldNodeMap = new Map();
+    c1.forEach((node, index) => {
+        oldNodeMap.set(node.key, {
+            index,
+            node
+        })
+    })
+
+    let maxNewIndex = 0;
+    let move = false;
+    const source = new Array(c2.length).fill(-1);
+    const toMounted = [];
+
+    for (let i = 0; i < c2.length; i++) {
+        const newNode = c2[i];
+        if (oldNodeMap.has(newNode.key)) {
+            const { node: oldNode, index: oldIndex } = oldNodeMap.get(newNode.key);
+            patch(oldNode, newNode, container, anchor);
+            if (oldIndex < maxNewIndex) {
+                move = true;
+            }
+            else {
+                maxNewIndex = oldIndex;
+            }
+            source[i] = oldIndex;
+            oldNodeMap.delete(newNode.key);
+        }
+        else {
+            toMounted.push(i)
+        }
+    }
+
+    oldNodeMap.forEach(item => {
+        unmount(item.node);
+    })
+
+    if (move) {
+        const seq = getSequence(source);
+        let seqRp = seq.length - 1;
+        for (let i = source.length - 1; i >= 0; i--) {
+            if (source[i] === -1) {
+                continue;
+            }
+            if (seq[seqRp] === i) {
+                seqRp--;
+            }
+            else {
+                const pos = i;
+                const nextPos = pos + 1;
+                const curAnchor = (c2[nextPos] && c2[nextPos].el) || anchor;
+                container.insertBefore(c2[pos].el, curAnchor);
+            }
+        }
+    }
+    if (toMounted.length) {
+        for (let i = toMounted.length - 1; i >= 0; i--) {
+            const pos = toMounted[i];
+            const nextPos = pos + 1;
+            const curAnchor = (c2[nextPos] && c2[nextPos].el) || anchor;
+            patch(null, c2[pos], container, curAnchor);
+        }
+    }
+}
+
+function getSequence(nums) {
+    const list = [];
+    const pos = [];
+    for (let i = 0; i < nums.length; i++) {
+        if (nums[i] === -1) {
+            continue;
+        }
+
+        if (nums[i] > list[list.length - 1]) {
+            list.push(nums[i]);
+            pos.push(list.length - 1);
+        }
+        else {
+            let l = 0;
+            let r = list.length - 1;
+            while (l <= r) {
+                let mid = ~~((l + r) / 2);
+                if (list[mid] > nums[i]) {
+                    r = mid - 1;
+                }
+                else if (list[mid] < nums[i]) {
+                    l = mid + 1;
+                } else {
+                    l = mid;
+                    break;
+                }
+            }
+            list[l] = nums[i];
+            pos.push(l);
+        }
+    }
+
+    let cur = list.length - 1;
+    for (let i = pos.length - 1; i >= 0 && cur >= 0; i--) {
+        if (cur === pos[i]) {
+            list[cur--] = i;
+        }
+    }
+
+    return list;
 }
