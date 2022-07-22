@@ -1,6 +1,6 @@
 import { ShapeFlag } from "./vnode";
 import { patchProps } from "./patchProps";
-import { mountComponent } from "./component";
+// import { mountComponent } from "./component";
 
 export function render(vnode, container) {
     const prevVNode = container._vnode;
