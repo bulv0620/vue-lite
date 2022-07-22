@@ -1,6 +1,6 @@
 import { ShapeFlag } from "./vnode";
 import { patchProps } from "./patchProps";
-// import { mountComponent } from "./component";
+import { mountComponent } from "./component";
 
 export function render(vnode, container) {
     const prevVNode = container._vnode;
@@ -10,9 +10,7 @@ export function render(vnode, container) {
         }
     }
     else {
-        if (vnode !== prevVNode) {
-            patch(prevVNode, vnode, container);
-        }
+        patch(prevVNode, vnode, container);
     }
     container._vnode = vnode;
 }
@@ -30,18 +28,23 @@ function unmount(vnode) {
     }
 }
 
-function unmountComponent() {
-    // todo
+function unmountComponent(vnode) {
+    unmount(vnode.component.subTree);
 }
 
 function processComponent(n1, n2, container, anchor) {
     if (n1) {
-        // update  被动更新
+        updateComponent(n1, n2);
     }
     else {
-        // mountComponent(vnode, container, anchor, patch);
-        // 主动更新
+        mountComponent(n2, container, anchor, patch);
     }
+}
+
+function updateComponent(n1, n2) {
+    n2.component = n1.component;
+    n2.component.next = n2;
+    n2.component.update();
 }
 
 function unmountFragment(vnode) {

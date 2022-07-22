@@ -1,4 +1,4 @@
-import { isArray, isNumber, isString } from "../utils";
+import { isArray, isNumber, isObject, isString } from "../utils";
 
 export const ShapeFlag = {
     ELEMENT: 1, // 0000 0001
@@ -39,7 +39,7 @@ export function h(type, props, children) {
         shapeFlag |= ShapeFlag.TEXT_CHILDREN;
         children = children.toString();
     }
-    else if(isArray(children)){
+    else if (isArray(children)) {
         shapeFlag |= ShapeFlag.ARRAY_CHILDREN;
     }
 
@@ -50,6 +50,19 @@ export function h(type, props, children) {
         shapeFlag,
         el: null,
         anchor: null,
-        key: props && props.key
+        key: props && props.key,
+        component: null
+    }
+}
+
+export function normalizeVNode(target) {
+    if(isArray(target)){
+        return h(Fragment, null, target);
+    }
+    else if(isObject(target)){
+        return target;
+    }
+    else {
+        return h(Text, null, target.toString());
     }
 }

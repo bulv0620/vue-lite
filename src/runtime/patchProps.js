@@ -1,9 +1,10 @@
 import { isBoolean } from "../utils";
 
-export function patchProps(p1, p2) {
+export function patchProps(p1, p2, container) {
     if (p1 === p2) {
         return;
     }
+
     p1 = p1 || {};
     p2 = p2 || {};
     for (const key in p2) {
@@ -13,7 +14,7 @@ export function patchProps(p1, p2) {
         const newVal = p2[key];
         const oldVal = p1[key];
         if (newVal !== oldVal) {
-            patchDomProp(oldVal, newVal, key, p2.el);
+            patchDomProp(oldVal, newVal, key, container);
         }
     }
     for (const key in p1) {
@@ -51,7 +52,7 @@ function patchDomProp(oldVal, newVal, key, el) {
             if (/^on[A-Z]/.test(key)) {
                 const eventName = key.slice(2).toLowerCase();
                 if (oldVal) {
-                    el.removeEventListener(eventName)
+                    el.removeEventListener(eventName, oldVal);
                 }
                 if (newVal) {
                     el.addEventListener(eventName, newVal);

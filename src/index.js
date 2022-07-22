@@ -1,40 +1,42 @@
 import { render, h, Text, Fragment } from "./runtime";
+import { ref } from "./reactive";
 
-render(
-    h('ul', null, [
-        h('li', { key: 1 }, '1'),
-        h('li', { key: 2 }, '2'),
-        h('li', { key: 3 }, '3'),
-        h('li', { key: 4 }, '4'),
-    ]),
-    document.body
-);
+const comp = {
+    setup() {
+        const count = ref(0);
+        const add = () => count.value++;
+        return {
+            count,
+            add,
+        };
+    },
+    render(ctx) {
+        return h('div', null, [
+            h('div', { class: 'a' }, ctx.count.value),
+            h('button', { onClick: ctx.add }, 'add')
+        ])
+    },
+}
 
-setTimeout(() => {
-    render(
-        h('ul', null, [
-            h('li', { key: 7 }, 'new1'),
-            h('li', { key: 1 }, '1'),
-            h('li', { key: 2 }, '2'),
-            h('li', { key: 6 }, 'new2'),
-            h('li', { key: 3 }, '3'),
-            h('li', { key: 4 }, '4'),
-            h('li', { key: 5 }, '5'),
-        ]),
-        document.body
-    );
-}, 2000)
+const vnodeProps = {
+    class: 'foo',
+    bar: 'bar'
+}
 
-setTimeout(() => {
-    render(
-        h('ul', null, [
-            h('li', { key: 1 }, '1'),
-            h('li', { key: 2 }, '2'),
-            h('li', { key: 3 }, '3'),
-            h('li', { key: 4 }, '4'),
-            h('li', { key: 6 }, '6'),
-            h('li', { key: 7 }, '7'),
-        ]),
-        document.body
-    );
-}, 4000)
+const vnode = h(comp, vnodeProps);
+render(vnode, document.body);
+
+// const Comp = {
+//     props: ['foo'],
+//     render(ctx) {
+//         return h('div', { class: 'a', id: ctx.bar }, ctx.foo);
+//     },
+// };
+
+// const vnodeProps = {
+//     foo: 'foo',
+//     bar: 'bar',
+// };
+
+// const vnode = h(Comp, vnodeProps);
+// render(vnode, document.body); // 渲染为<div class="a" bar="bar">foo</div>
