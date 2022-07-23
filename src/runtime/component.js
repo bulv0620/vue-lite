@@ -1,4 +1,5 @@
 import { effect, reactive } from '../reactive'
+import { queueJob } from './scheduler';
 import { normalizeVNode } from './vnode';
 
 export function mountComponent(vnode, container, anchor, patch) {
@@ -26,6 +27,7 @@ export function mountComponent(vnode, container, anchor, patch) {
     }
 
     instance.update = effect(() => {
+        // console.log('render')
         if (instance.next) {
             vnode = instance.next;
             instance.next = null;
@@ -47,9 +49,9 @@ export function mountComponent(vnode, container, anchor, patch) {
         if (!instance.isMounted) {
             instance.isMounted = false;
         }
+    }, {
+        scheduler: queueJob
     })
-
-
 }
 
 function fallThrough(instance, subTree) {

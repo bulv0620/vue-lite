@@ -55,7 +55,7 @@ export function trigger(target, property) {
 
     deps.forEach(effectFn => {
         if (effectFn.scheduler) {
-            effectFn.scheduler();
+            effectFn.scheduler(effectFn);
         }
         else {
             effectFn()

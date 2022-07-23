@@ -1,42 +1,21 @@
-import { render, h, Text, Fragment } from "./runtime";
+import { render, h, Text, Fragment, createApp } from "./runtime";
 import { ref } from "./reactive";
 
-const comp = {
+createApp({
     setup() {
         const count = ref(0);
-        const add = () => count.value++;
+        function addCount() {
+            count.value++;
+        }
         return {
             count,
-            add,
-        };
+            addCount
+        }
     },
     render(ctx) {
         return h('div', null, [
-            h('div', { class: 'a' }, ctx.count.value),
-            h('button', { onClick: ctx.add }, 'add')
+            h('div', null, ctx.count.value),
+            h('button', { onClick: ctx.addCount }, 'add'),
         ])
-    },
-}
-
-const vnodeProps = {
-    class: 'foo',
-    bar: 'bar'
-}
-
-const vnode = h(comp, vnodeProps);
-render(vnode, document.body);
-
-// const Comp = {
-//     props: ['foo'],
-//     render(ctx) {
-//         return h('div', { class: 'a', id: ctx.bar }, ctx.foo);
-//     },
-// };
-
-// const vnodeProps = {
-//     foo: 'foo',
-//     bar: 'bar',
-// };
-
-// const vnode = h(Comp, vnodeProps);
-// render(vnode, document.body); // 渲染为<div class="a" bar="bar">foo</div>
+    }
+}).mount(document.body)
