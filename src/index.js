@@ -1,21 +1,7 @@
-import { render, h, Text, Fragment, createApp } from "./runtime";
+import { h, createApp } from "./runtime";
 import { ref } from "./reactive";
+import { parse } from "./compiler";
 
-createApp({
-    setup() {
-        const count = ref(0);
-        function addCount() {
-            count.value++;
-        }
-        return {
-            count,
-            addCount
-        }
-    },
-    render(ctx) {
-        return h('div', null, [
-            h('div', null, ctx.count.value),
-            h('button', { onClick: ctx.addCount }, 'add'),
-        ])
-    }
-}).mount(document.body)
+const t = `<div id="foo" v-if="ok">hello {{name}}</div>`
+
+console.log(parse(t));

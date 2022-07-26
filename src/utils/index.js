@@ -1,16 +1,16 @@
-export function isObject(target){
+export function isObject(target) {
     return typeof target === 'object' && target !== null;
 }
 
-export function hasChanged(oldVal, val){
+export function hasChanged(oldVal, val) {
     return oldVal !== val && !(Number.isNaN(oldVal) && Number.isNaN(val));
 }
 
-export function isArray(target){
+export function isArray(target) {
     return Array.isArray(target);
 }
 
-export function isFunction(target){
+export function isFunction(target) {
     return typeof target === 'function';
 }
 
@@ -24,4 +24,8 @@ export function isNumber(value) {
 
 export function isBoolean(value) {
     return typeof value === 'boolean';
+}
+
+export function camelize(str) {
+    return str.replace(/-(\w)g/, (_, c) => (c ? c.toUpperCase() : ''));
 }
