@@ -8,6 +8,12 @@ export function createApp(rootComponent) {
             if(isString(el)){
                 el = document.querySelector(el);
             }
+
+            if(!rootComponent.render && !rootComponent.template){
+                rootComponent.template = el.innerHTML;
+                el.innerHTML = '';
+            }
+            
             render(h(rootComponent), el);
         }
     }

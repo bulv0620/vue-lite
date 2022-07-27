@@ -5,9 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vue-lite-dev</title>
+    <script src="/vue-lite.js"></script>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        Counter
+        <div>{{count.value}}</div>
+        <button @click="add">click</button>
+    </div>
 </body>
 </html>
-<script src="./vue-lite.js"></script>
+<script>
+const {createApp, ref} = VueLite;
+createApp({
+    setup() {
+        const count = ref(0);
+        const add = () => count.value++;
+        return {
+            count, add
+        }
+    }
+}).mount('#app');
+</script>

@@ -1,7 +1,24 @@
-import { h, createApp } from "./runtime";
-import { ref } from "./reactive";
-import { parse } from "./compiler";
+import { compile } from './compiler/compile';
+import {
+  createApp,
+  render,
+  h,
+  Text,
+  Fragment,
+  nextTick
+} from './runtime';
+import { reactive, ref, computed, effect } from './reactive';
 
-const t = `<div id="foo" v-if="ok">hello {{name}}</div>`
-
-console.log(parse(t));
+export const VueLite = (window.VueLite = {
+  createApp,
+  render,
+  h,
+  Text,
+  Fragment,
+  nextTick,
+  reactive,
+  ref,
+  computed,
+  effect,
+  compile
+});

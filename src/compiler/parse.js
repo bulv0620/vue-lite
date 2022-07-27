@@ -179,7 +179,6 @@ function parseAttributes(ctx) {
 }
 
 function parseAttribute(ctx) {
-    console.log(ctx.source)
     const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(ctx.source);
     const name = match[0];
 
