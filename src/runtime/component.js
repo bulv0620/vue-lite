@@ -38,7 +38,6 @@ export function mountComponent(vnode, container, anchor, patch) {
     }
 
     instance.update = effect(() => {
-        // console.log('render')
         if (instance.next) {
             vnode = instance.next;
             instance.next = null;

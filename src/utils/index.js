@@ -27,7 +27,7 @@ export function isBoolean(value) {
 }
 
 export function camelize(str) {
-    return str.replace(/-(\w)g/, (_, c) => (c ? c.toUpperCase() : ''));
+    return str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
 }
 
 export function capitalize(str) {

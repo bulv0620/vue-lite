@@ -9,20 +9,84 @@
 </head>
 <body>
     <div id="app">
-        Counter
-        <div>{{count.value}}</div>
-        <button @click="add">click</button>
+        <h1>v-for:</h1>
+        <ul>
+            <li v-for="(item, index) in items" :key="item.id">{{index}} : {{item.name}}</li>
+        </ul>
+
+        <h1>v-if:</h1>
+        <div v-if="show.value">show</div>
+        <div v-else>hide</div>
+        <button @click="toggle">toggle</button>
+
+        <h1>reactivity:</h1>
+        <div class="counter">{{count.value}}</div>
+        <button @click="add">add</button>
+
+        <h1>v-model:</h1>
+        <ul>
+            <li v-for="(value, key, index) in formState" :key="key">{{index}} - {{key}} : {{value}}</li>
+        </ul>
+        <input type="text" v-model="formState.inputValue"> <br>
+        <input type="radio" v-model="formState.radioValue" value="radio">redio <br>
+        <input type="checkbox" v-model="formState.checkValue" value="check1">check1 <br>
+        <input type="checkbox" v-model="formState.checkValue" value="check2">check2 <br>
+        <input type="checkbox" v-model="formState.checkValue" value="check3">check3 <br>
+        <br>
+        <h1>component:</h1>
+        <my-component></my-component>
+
     </div>
 </body>
 </html>
 <script>
-const {createApp, ref} = VueLite;
-createApp({
+const {createApp, ref, reactive, h} = VueLite;
+
+const myComponent = {
     setup() {
+        const txt = 'hello world';
+        return{txt}
+    },
+
+    render(ctx){
+        return h('div', null, ctx.txt);
+    }
+}
+
+createApp({
+    components: {
+        myComponent
+    },
+    setup() {
+        const items = reactive([
+            {
+                id: 1,
+                name: 'foo'
+            },
+            {
+                id: 2,
+                name: 'bar'
+            },
+            {
+                id: 3,
+                name: 'baz'
+            }
+        ])
+
         const count = ref(0);
         const add = () => count.value++;
+
+        const show = ref(true);
+        const toggle = () => show.value = !show.value;
+
+        const formState = reactive({
+            inputValue: '',
+            radioValue: '',
+            checkValue: []
+        })
+
         return {
-            count, add
+            count, add, items, show, toggle, formState
         }
     }
 }).mount('#app');

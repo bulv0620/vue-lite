@@ -5,7 +5,10 @@ import {
   h,
   Text,
   Fragment,
-  nextTick
+  nextTick,
+  renderList,
+  withModel,
+  resolveComponent
 } from './runtime';
 import { reactive, ref, computed, effect } from './reactive';
 
@@ -20,5 +23,8 @@ export const VueLite = (window.VueLite = {
   ref,
   computed,
   effect,
-  compile
+  compile,
+  renderList,
+  withModel,
+  resolveComponent
 });

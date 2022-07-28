@@ -21,7 +21,7 @@ export function patchProps(p1, p2, container) {
         if (key === 'key') {
             continue;
         }
-        if (!p2[key]) {
+        if (p2[key] == null) {
             p2.el.removeAttribute(key);
         }
     }
