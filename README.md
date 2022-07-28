@@ -26,7 +26,7 @@ First of all, you need to modify the ```mode``` in ```webpack.config.js```.
 
 ```js
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     // omit other content...
 }
 ```
