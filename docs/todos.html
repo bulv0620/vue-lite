@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="/vue-lite.js"></script>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="todoState.input" placeholder="输入代办事项"><button @click="addTodo">添加</button>
+        <div>
+            <span :class="todoState.display === 0 ? 'active nav' : 'nav'" @click="changeDisplay(0)">全部</span>
+            <span :class="todoState.display === 1 ? 'active nav' : 'nav'" @click="changeDisplay(1)">已完成</span>
+            <span :class="todoState.display === 2 ? 'active nav' : 'nav'" @click="changeDisplay(2)">未完成</span>
+        </div>
+        <ul v-if="showList.value.length > 0">
+            <li v-for="(todo,index) in showList.value" :key="todo.id">
+                <input type="checkbox" v-model="todo.finished">
+                <span :class="todo.finished ? 'finished': ''">{{todo.content}}</span>
+                <button :style="{'margin-left': '12px'}" @click="deleteTodo(index)">删除</button>
+            </li>
+        </ul>
+        <div class="empty" v-else>无内容</div>
+        <button @click="clearFinished">清空已完成内容</button><br>
+        <span>总条数:{{todoState.list.length}}</span><br>
+        <span>完成条数:{{finishedTodos.value.length}}</span><br>
+        <span>待办条数:{{unfinishedTodos.value.length}}</span>
+
+    </div>
+</body>
+</html>
+<script>
+    const {createApp, reactive, computed} = VueLite;
+    createApp({
+        setup(){
+            let id = 2;
+            const todoState = reactive({
+                input: '',
+                list: [
+                    {
+                        id: 0,
+                        content: '测试待办1',
+                        finished: false
+                    },
+                    {
+                        id: 1,
+                        content: '测试待办2',
+                        finished: true
+                    },
+                ],
+                display: 0
+            })
+
+            const unfinishedTodos = computed(() => todoState.list.filter(item => !item.finished))
+            const finishedTodos = computed(() => todoState.list.filter(item => item.finished))
+
+            const showList = computed(() => {
+                switch(todoState.display){
+                    case 1: 
+                        return finishedTodos.value;
+                    case 2:
+                        return unfinishedTodos.value;
+                    default: 
+                        return todoState.list;
+                }
+            })
+
+            function addTodo() {
+                if(todoState.input === ''){
+                    alert('请输入待办内容')
+                }
+                else {
+                    todoState.list.push({
+                        id: id++,
+                        content:todoState.input,
+                        finished: false
+                    })
+                    todoState.input = '';
+                }
+            }
+
+            function deleteTodo(index) {
+                todoState.list.splice(index, 1);
+            }
+
+            function changeDisplay(num){
+                todoState.display = num;
+            }
+
+            function clearFinished(){
+                todoState.list = unfinishedTodos.value;
+            }
+
+            return{
+                todoState, addTodo, deleteTodo, unfinishedTodos, finishedTodos, showList, changeDisplay, clearFinished
+            }
+        }
+    }).mount('#app')
+</script>
+
+<style>
+    ul{
+        list-style: none;
+        padding: 0;
+        width: 300px;
+    }
+
+    ul li{
+        width: 218px;
+        display: flex;
+    }
+
+    ul li span.finished{
+        text-decoration: line-through;
+    }
+
+    .nav{
+        margin-right: 10px;
+        cursor: pointer;
+        color: grey;
+    }
+
+    .nav.active{
+        color: blue;
+    }
+
+    .empty{
+        padding: 18px;
+    }
+</style>
